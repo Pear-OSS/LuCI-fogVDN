@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/target.mk
 
 PKG_SOURCE_URL=$(BASE_URL)
-PKG_VERSION:=621
+PKG_VERSION:=622
 PKG_RELEASE:=1
 PKG_NAME:=fogvdn
 PKG_HASH:=skip
@@ -23,7 +23,7 @@ define Package/$(PKG_NAME)
   SECTION:=PCDN
   CATEGORY:=PCDN
   TITLE:=Pear PCDN binary
-  DEPENDS:=+bash 
+  DEPENDS:=+bash +util-linux +jq +coreutils-install +coreutils-df 
 endef
 
 define Build/Prepare
