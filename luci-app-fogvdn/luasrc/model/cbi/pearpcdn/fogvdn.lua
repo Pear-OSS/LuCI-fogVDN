@@ -16,8 +16,10 @@ if fs.access(node_info_file) then
     local node_info = fs.readfile(node_info_file)
     node_info = json.parse(node_info)
     for k,v in pairs(node_info) do
-        option = s:option(DummyValue, "_"..k,translate(k))
-        option.value = v
+        if k ~= "biz_id" then
+            option = s:option(DummyValue, "_"..k,translate(k))
+            option.value = v
+        end
     end
 end
 
@@ -64,18 +66,25 @@ limited_storage.datatype = "range(0, 100)"
 -- 0-100%
 
 limited_area = s:option(Value, "limited_area", translate("Limited Area"))
-limited_area.default = "1"
-limited_area:value("-1", "不设置")
-limited_area:value("0", "全国调度")
-limited_area:value("1", "省份调度")
-limited_area:value("2", "大区调度")
+limited_area.default = "2"
+limited_area:value("-1", "不设置：若不确定运营商对流量出省的限制情况，建议选择该项")
+limited_area:value("0", "全国调度：流量将会向全国调度，出省比例较高，可能会导致运营商的限制")
+limited_area:value("1", "本省调度：流量只会向所在省份内调度，是比较安全的调度模式，但跑量可能会降低")
+limited_area:value("2", "大区调度：流量只会向所在大区内调度，出省比例较低，是安全性和跑量之间较为均衡的模式")
 -- 限制地区 -1 不设置（采用openfogos默认） 0 全国调度，1 省份调度，2 大区调度
 
 nics = s:option(DynamicList,"nics",translate("netdev"))
-uci:foreach("multiwan","multiwan",function (instance)
-    nics:value(instance["tag"])
+-- uci:foreach("multiwan","multiwan",function (instance)
+--     nics:value(instance["tag"])
+-- end
+-- )
+--list /sys/class/net, filter bridge device
+cmd="/usr/share/pcdn/check_netdev get_netdevs"
+json_dump=luci.sys.exec(cmd)
+devs=json.parse(json_dump)
+for k,v in pairs(devs) do
+    nics:value(k,k.." ["..v.."]")
 end
-)
 
 storage = s:option(DynamicList, "storage", translate("Storage"))
 storage.default = "/opt/openfogos"
