@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/target.mk
 
 PKG_SOURCE_URL=$(BASE_URL)
-PKG_VERSION:=634
+PKG_VERSION:=lateset
 PKG_RELEASE:=1
 PKG_NAME:=fogvdn
 PKG_HASH:=skip
@@ -14,7 +14,7 @@ else ifeq ($(ARCH),aarch64)
 endif
 PKG_VENDOR:=PEAR
 PKG_SOURCE:=$(PKG_NAME)_$(PKG_VENDOR)_$(PKG_ARCH)_LINUX_$(PKG_VERSION).tar.gz
-PKG_SOURCE_URL:=https://download.openfogos.com/spare/
+PKG_SOURCE_URL:=https://download.openfogos.com/release/
 
 
 include $(INCLUDE_DIR)/package.mk
