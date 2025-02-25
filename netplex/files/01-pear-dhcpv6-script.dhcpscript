@@ -1,0 +1,10 @@
+. /usr/share/pcdn/netplex_update
+case $2 in
+bound|informed|updated|rebound|ra-updated)
+    update_v6_config $INTERFACE update
+    ;;
+unbind|stopped|deconfig)
+    update_v6_config $INTERFACE remove
+    ;;
+esac
+exit 0

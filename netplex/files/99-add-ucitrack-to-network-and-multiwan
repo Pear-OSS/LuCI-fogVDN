@@ -1,0 +1,7 @@
+#!/bin/sh
+. /usr/share/pcdn/netplex_update
+mk_pear_dir
+
+
+#uci track
+exit 0
