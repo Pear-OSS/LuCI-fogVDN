@@ -1,8 +1,0 @@
-# on ifupdate
-[ $ACTION == "ifupdate" ] || exit
-[ -n "$INTERFACE" ] || exit
-proto=$(uci -q get network.$INTERFACE.proto)
-[ "$proto" == "pppoe" ] || exit
-. /usr/share/pcdn/netplex_update
-pppoe_update_config $INTERFACE
-exit 0
