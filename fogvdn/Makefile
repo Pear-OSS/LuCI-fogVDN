@@ -23,7 +23,7 @@ define Package/$(PKG_NAME)
   SECTION:=PCDN
   CATEGORY:=PCDN
   TITLE:=Pear PCDN binary
-  DEPENDS:=+bash +util-linux +jq +coreutils-install +coreutils-df 
+  DEPENDS:=+bash +util-linux +jq +coreutils-install +coreutils-df +libc +getopt +ntpdate +whereis +smartmontools +zoneinfo-all +coreutils-nohup
 endef
 
 define Build/Prepare
@@ -41,6 +41,16 @@ endef
 
 define Package/$(PKG_NAME)/install
 	$(CP) $(PKG_BUILD_DIR)/root/* $(1)/
+endef
+
+define Package/$(PKG_NAME)/postrm
+#!/bin/sh
+sed -i '/pear_cron.sh/d' /etc/crontabs/root
+/etc/init.d/cron reload
+
+uci delete ucitrack.@fogvdn[0]
+uci commit ucitrack
+#endef
 endef
 
 
