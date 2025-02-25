@@ -98,4 +98,92 @@ for k,v in pairs(mount_point) do
     storage:value(k,k.."("..v..")")
 end
 
+btn = s:option(Button, "_filter", "")
+btn.inputtitle = "应用最佳存储设置"
+btn.description = "为避免木桶效应，点击估算最佳设置"
+btn.inputstyle = "apply"
+
+-- 获取表中元素的索引
+table.indexOf = function(tbl, value)
+    for i, v in ipairs(tbl) do
+        if v == value then return i end
+    end
+    return -1
+end
+
+-- 拷贝表
+table.copy = function(tbl)
+    local copy = {}
+    for k, v in pairs(tbl) do
+        copy[k] = v
+    end
+    return copy
+end
+
+-- 解析并转换大小单位
+function parseSize(size)
+    if type(size) ~= "string" then return 0 end
+    
+    local unit = {"B", "K", "M", "G", "T"}
+    
+    local num, u = string.match(size, "^(%d+%.?%d*)([KMGT]?)$")
+    if not num then return 0 end
+    
+    local i = table.indexOf(unit, u)
+    
+    -- 如果没有找到单位，默认为字节
+    if i == -1 then
+        return tonumber(num)
+    else
+        return tonumber(num) * (1024 ^ i)
+    end
+end
+
+-- 获取最佳存储方案
+function getOptimalSolution(numsObjArray)
+    if type(numsObjArray) ~= "table" or #numsObjArray == 0 then return {} end
+    
+    -- 拷贝并按大小排序
+    local nums = {}
+    for _, v in ipairs(numsObjArray) do
+        table.insert(nums, {name = v.name, size = v.size})
+    end
+    table.sort(nums, function(a, b)
+        return parseSize(a.size) < parseSize(b.size)
+    end)
+
+    local max = 0
+    local optimal = {}
+
+    while #nums > 0 do
+        local temp = parseSize(nums[1].size) * #nums
+        if temp > max then
+            max = temp
+            optimal = table.copy(nums)
+        end
+        table.remove(nums, 1)  -- 移除第一个元素
+    end
+
+    -- 提取名称并排序
+    local result = {}
+    for _, v in ipairs(optimal) do
+        table.insert(result, v.name)
+    end
+    table.sort(result)
+    
+    return result
+end
+
+function btn.write(self, section)
+    local numsObjArray = {}
+
+    for k,v in pairs(mount_point) do
+        table.insert(numsObjArray, {name = k, size = v})
+    end
+
+    local optimalStorage = getOptimalSolution(numsObjArray)
+
+    self.map:set(section, "storage", optimalStorage)
+end
+
 return m
