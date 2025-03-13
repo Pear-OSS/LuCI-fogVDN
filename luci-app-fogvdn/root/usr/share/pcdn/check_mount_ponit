@@ -48,7 +48,7 @@ get_unmounted_partition_info() {
     local min_size=$(( 1024 * 1024 * 1024 ))
     local system_disk="/dev/$(lsblk --noheadings --output PKNAME "$(findmnt -n -o SOURCE /rom)")"
 
-    local disks=$(lsblk --noheadings --bytes --path --list --output NAME,SIZE,TYPE,MOUNTPOINT | grep disk | awk -v min_size="${min_size}" '{
+    local disks=$(lsblk --noheadings --bytes --list --output PATH,SIZE,TYPE,MOUNTPOINT | grep disk | awk -v min_size="${min_size}" '{
     if ($4 == "" && $2 > min_size)
         print $1
     }')
@@ -58,18 +58,30 @@ get_unmounted_partition_info() {
         print $1
     }')
 
+    json_add_array "unmounted_info"
+
     for disk in $disks; do
-        local disk_size="$(echo -e $(lsblk --noheadings --output SIZE "${disk}"))"
+        local disk_size="$(echo -e $(lsblk --noheadings --output SIZE "${disk}" | grep disk | awk 'NR==1 {print $1}'))"
         local disk_parts=$(lsblk --noheadings --output NAME,TYPE "${disk}" | awk '$2=="part"')
         if [ -z "${disk_parts}" ]; then
-            json_add_string "${disk}" "${disk_size}"
+            json_add_object ""
+            json_add_string "path" "${disk}"
+            json_add_string "size" "${disk_size}"
+            json_add_string "type" "disk"
+            json_close_object
         fi
     done
 
     for part in $parts; do
         local part_size="$(echo -e $(lsblk --noheadings --output SIZE "${part}"))"
-        json_add_string "${part}" "${part_size}"
+        json_add_object ""
+        json_add_string "path" "${part}"
+        json_add_string "size" "${part_size}"
+        json_add_string "type" "part"
+        json_close_object
     done
+
+    json_close_array
 }
 
 

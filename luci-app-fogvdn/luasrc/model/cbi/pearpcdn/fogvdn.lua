@@ -16,7 +16,19 @@ if fs.access(node_info_file) then
     local node_info = fs.readfile(node_info_file)
     node_info = json.parse(node_info)
     for k,v in pairs(node_info) do
-        if k ~= "biz_id" then
+        if k == "node_id" then
+            option = s:option(DummyValue, "_"..k,translate(k))
+            option.value = v
+        end
+    end
+end
+
+storage_info_file = "/etc/pear/pear_monitor/storage_info.json"
+if fs.access(storage_info_file) then
+    local storage_info = fs.readfile(storage_info_file)
+    storage_info = json.parse(storage_info)
+    for k,v in pairs(storage_info) do
+        if k == "os_drive_serial" then
             option = s:option(DummyValue, "_"..k,translate(k))
             option.value = v
         end
@@ -87,7 +99,6 @@ for k,v in pairs(devs) do
 end
 
 storage = s:option(DynamicList, "storage", translate("Storage"))
-storage.default = "/opt/openfogos"
 storage.description = translate("Warnning: System directory is not allowed!")
 --filter start with /etc /usr /root /var /tmp /dev /proc /sys /overlay /rom and root
 mount_point = {}
