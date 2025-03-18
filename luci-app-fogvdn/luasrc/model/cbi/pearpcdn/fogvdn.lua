@@ -1,7 +1,7 @@
 uci = require "luci.model.uci".cursor()
 local fs = require "nixio.fs"
 local json = require "luci.jsonc"
-m = Map("fogvdn", translate("FOGVDN Node"))
+m = Map("fogvdn", translate("OpenFog Node"))
 s = m:section(NamedSection, "main", "main", translate("Main"))
 
 
@@ -195,6 +195,18 @@ function btn.write(self, section)
     local optimalStorage = getOptimalSolution(numsObjArray)
 
     self.map:set(section, "storage", optimalStorage)
+end
+
+function m.on_after_commit(self)
+    local uci = require "luci.model.uci".cursor()
+    local enable = uci:get("fogvdn", "main", "enable")
+
+    os.execute("echo " .. enable .. " > /tmp/fogvdn_enable_state")
+
+    if enable == "1" then
+        os.execute("service fogvdn enable >/dev/null 2>&1")
+        os.execute("service fogvdn start >/dev/null 2>&1")
+    end
 end
 
 return m

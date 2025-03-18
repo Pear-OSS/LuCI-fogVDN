@@ -4,9 +4,9 @@ I18N = require "luci.i18n"
 translate = I18N.translate
 json = require "luci.jsonc"
 function index()
-	entry({"admin", "pcdn"}, firstchild(), _("PCDN"), 28).dependent = true
-	entry({"admin", "pcdn","pear_pcdn"}, cbi("pearpcdn/fogvdn"),_("FOGVDN"),1).dependent = true
-    entry({"admin", "pcdn","pear_pcdn", "get_act_status"}, call("get_act_status"),nil).leaf = true
+	-- entry({"admin", "services"}, firstchild(), _("OpenFog"), 60).dependent = true
+	entry({"admin", "services","openfog"}, cbi("pearpcdn/fogvdn"),_("OpenFog"),60).dependent = true
+    entry({"admin", "services","openfog", "get_act_status"}, call("get_act_status"),nil).leaf = true
 end
 
 function get_act_status()

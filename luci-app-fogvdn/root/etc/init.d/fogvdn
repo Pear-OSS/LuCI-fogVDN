@@ -116,7 +116,8 @@ function stop_instance()
 start_service()
 {
     config_load fogvdn
-    config_get enable main enable
+    # config_get enable main enable
+    local enable="$(cat /tmp/fogvdn_enable_state 2>/dev/null || echo 0)"
     [ "$enable" == "1" ] && config_foreach run_instance instance || stop
 }
 

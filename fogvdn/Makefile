@@ -2,7 +2,7 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/target.mk
 
 PKG_SOURCE_URL=$(BASE_URL)
-PKG_VERSION:=latest
+PKG_VERSION:=646
 PKG_RELEASE:=1
 PKG_NAME:=fogvdn
 PKG_HASH:=skip
@@ -13,17 +13,17 @@ else ifeq ($(ARCH),aarch64)
 	PKG_ARCH:=ARM64
 endif
 PKG_VENDOR:=PEAR
-PKG_SOURCE:=$(PKG_NAME)_$(PKG_VENDOR)_$(PKG_ARCH)_LINUX_$(PKG_VERSION).tar.gz
+PKG_SOURCE:=$(PKG_NAME)_$(PKG_VENDOR)_$(PKG_ARCH)_LINUX_latest.tar.gz
 PKG_SOURCE_URL:=https://download.openfogos.com/release/
 
 
 include $(INCLUDE_DIR)/package.mk
 PKG_UNPACK:=$(HOST_TAR) -C $(PKG_BUILD_DIR)/root --strip-components=1 -xzf $(DL_DIR)/$(PKG_SOURCE)
 define Package/$(PKG_NAME)
-  SECTION:=PCDN
+  SECTION:=services
   CATEGORY:=PCDN
   TITLE:=Pear PCDN binary
-  DEPENDS:=+bash +jq +coreutils-install +coreutils-df +libc +getopt +ntpdate +whereis +smartmontools +zoneinfo-all +coreutils-nohup
+  DEPENDS:=+bash +jq +getopt +ntpdate +whereis +smartmontools +zoneinfo-all +coreutils +coreutils-nohup +coreutils-install +coreutils-df +coreutils-realpath
 endef
 
 define Build/Prepare
@@ -43,6 +43,16 @@ define Package/$(PKG_NAME)/install
 	$(CP) $(PKG_BUILD_DIR)/root/* $(1)/
 endef
 
+define Package/$(PKG_NAME)/postinst
+#!/bin/sh
+echo 1 > /tmp/fogvdn_enable_state
+endef
+
+define Package/$(PKG_NAME)/prerm
+#!/bin/sh
+/etc/init.d/openfog stop
+endef
+
 define Package/$(PKG_NAME)/postrm
 #!/bin/sh
 sed -i '/pear_cron.sh/d' /etc/crontabs/root
@@ -50,7 +60,6 @@ sed -i '/pear_cron.sh/d' /etc/crontabs/root
 
 uci delete ucitrack.@fogvdn[0]
 uci commit ucitrack
-#endef
 endef
 
 

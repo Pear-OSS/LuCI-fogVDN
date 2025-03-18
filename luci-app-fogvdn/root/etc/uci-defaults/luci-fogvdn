@@ -2,6 +2,6 @@
 rm -f /tmp/luci-indexcache
 #uci track
 cfg_id=$(uci add ucitrack fogvdn)
-uci set ucitrack.$cfg_id.init="fogvdn"
-uci commit ucitrack
+uci set ucitrack.$cfg_id.init="fogvdn" 2>/dev/null
+uci commit ucitrack 2>/dev/null
 exit 0

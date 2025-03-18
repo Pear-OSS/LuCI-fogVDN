@@ -2,7 +2,7 @@
 
 <span id="<%=cbid%>"><%:Please Wait%></span>
 <script>
-     XHR.poll(3,'<%=luci.dispatcher.build_url("admin","pcdn","pear_pcdn","get_act_status")%>',null,
+     XHR.poll(3,'<%=luci.dispatcher.build_url("admin","services","openfog","get_act_status")%>',null,
             (x,data)=>{
                 var status = data.status;
                 if (status == 0){

@@ -14,7 +14,7 @@ function get_netdevs()
             cdir4=`ip addr show dev $netdev|grep "inet " | grep -E -o '([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]{1,2}' | sed ':a;N;$!ba;s/\n/;/g'`
             
             [ -z "$cdir4" ] && filter=1
-            [ "$DEVTYPE" == "bridge" ] && filter=1
+            [ -z "$(ip route show default table all | grep $netdev)" ] && [ "$DEVTYPE" == "bridge" ] && filter=1
             [ "$DEVTYPE" == "wlan" ] && filter=1
             [ "$netdev" == "lo" ] && filter=1
             if [ "$filter" -eq 0 ];then
