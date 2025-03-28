@@ -17,7 +17,7 @@ if fs.access(node_info_file) then
     node_info = json.parse(node_info)
     for k,v in pairs(node_info) do
         if k == "node_id" then
-            option = s:option(DummyValue, "_"..k,translate(k))
+            option = s:option(DummyValue, "_"..k, translate(k))
             option.value = v
         end
     end
@@ -29,7 +29,7 @@ if fs.access(storage_info_file) then
     storage_info = json.parse(storage_info)
     for k,v in pairs(storage_info) do
         if k == "os_drive_serial" then
-            option = s:option(DummyValue, "_"..k,translate(k))
+            option = s:option(DummyValue, "_"..k, translate(k))
             option.value = v
         end
     end
@@ -79,13 +79,13 @@ limited_storage.datatype = "range(0, 100)"
 
 limited_area = s:option(Value, "limited_area", translate("Limited Area"))
 limited_area.default = "2"
-limited_area:value("-1", "不设置：若不确定运营商对流量出省的限制情况，建议选择该项")
-limited_area:value("0", "全国调度：流量将会向全国调度，出省比例较高，可能会导致运营商的限制")
-limited_area:value("1", "本省调度：流量只会向所在省份内调度，是比较安全的调度模式，但跑量可能会降低")
-limited_area:value("2", "大区调度：流量只会向所在大区内调度，出省比例较低，是安全性和跑量之间较为均衡的模式")
+limited_area:value("-1", translate("Unset: If you are unsure about the operator's restrictions on inter-provincial traffic, it is recommended to choose this option."))
+limited_area:value("0", translate("Domestic: Traffic will be scheduled nationwide, resulting in a higher proportion of inter-provincial traffic, which may lead to restrictions by the operator."))
+limited_area:value("1", translate("Provincial: Traffic will only be scheduled within the province where it is located, which is a safer scheduling mode, but the volume of traffic may decrease."))
+limited_area:value("2", translate("Regional: Traffic will only be scheduled within the region where it is located, resulting in a lower proportion of inter-provincial traffic. This mode provides a balanced approach between safety and traffic volume."))
 -- 限制地区 -1 不设置（采用openfogos默认） 0 全国调度，1 省份调度，2 大区调度
 
-nics = s:option(DynamicList,"nics",translate("netdev"))
+nics = s:option(DynamicList,"nics", translate("netdev"))
 -- uci:foreach("multiwan","multiwan",function (instance)
 --     nics:value(instance["tag"])
 -- end
@@ -102,16 +102,16 @@ storage = s:option(DynamicList, "storage", translate("Storage"))
 storage.description = translate("Warnning: System directory is not allowed!")
 --filter start with /etc /usr /root /var /tmp /dev /proc /sys /overlay /rom and root
 mount_point = {}
-cmd="/usr/share/pcdn/check_mount_ponit mount_point"
+cmd="/usr/share/pcdn/check_mount_point mount_point"
 json_dump=luci.sys.exec(cmd)
 mount_point=json.parse(json_dump)
 for k,v in pairs(mount_point) do
     storage:value(k,k.."("..v..")")
 end
 
-btn = s:option(Button, "_filter", "")
-btn.inputtitle = "应用最佳存储设置"
-btn.description = "为避免木桶效应，点击估算最佳设置"
+btn = s:option(Button, "_filter", " ")
+btn.inputtitle = translate("Apply Optimal Storage Settings")
+btn.description = translate("In order to avoid the barrel effect, Click Me to estimat the optimal setup.")
 btn.inputstyle = "apply"
 
 -- 获取表中元素的索引
@@ -195,6 +195,30 @@ function btn.write(self, section)
     local optimalStorage = getOptimalSolution(numsObjArray)
 
     self.map:set(section, "storage", optimalStorage)
+end
+
+cmd="/usr/share/pcdn/check_mount_point unmounted_info"
+json_dump=luci.sys.exec(cmd)
+
+if json_dump ~= nil then
+    local unmount_point = json.parse(json_dump)
+    if unmount_point and unmount_point.unmounted_info and #unmount_point.unmounted_info ~= 0 then
+        btn=s:option(DummyValue, "_toStorageManager", " ")
+        btn.rawhtml = true
+        btn.value = translate("<input type=\"button\" class=\"cbi-button cbi-button-apply\" value=\"Mount Page\" />")
+        btn.href="/cgi-bin/luci/admin/pcdn/storage_manager"
+        btn.description = translate("Unmounted Storage:")
+
+        local first = true
+        for _,dev_info in ipairs(unmount_point.unmounted_info) do
+            if first then
+                btn.description = btn.description .. dev_info.path
+                first = false
+            else
+                btn.description = btn.description .. "、" .. dev_info.path
+            end
+        end
+    end
 end
 
 function m.on_after_commit(self)

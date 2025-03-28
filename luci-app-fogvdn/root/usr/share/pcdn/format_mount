@@ -1,0 +1,218 @@
+#!/bin/sh
+# /usr/bin/storagemanager-helper.sh
+ACTION="$1"
+DEVICE="$2"
+TYPE="$3" # disk/part
+FSTYPE="${4:-xfs}"
+
+validate_input() {
+    # 验证设备路径
+    if ! [ -b "$DEVICE" ]; then
+        return 1
+    fi
+
+    # 验证设备类型
+    case "$TYPE" in
+    disk | part) ;;
+    *)
+        return 1
+        ;;
+    esac
+
+    # 验证文件系统类型
+    case "$FSTYPE" in
+    xfs | exfat) ;;
+    *)
+        return 1
+        ;;
+    esac
+
+    # 检查依赖命令
+    for cmd in parted mkfs.xfs block uci jq; do
+        if ! command -v "$cmd" >/dev/null; then
+            return 1
+        fi
+    done
+
+    # 检查/check_mount_point脚本是否存在（用于挂载点生成）
+    if ! [ -x "/usr/share/pcdn/check_mount_point" ]; then
+        return 1
+    fi
+
+    return 0
+}
+
+dev_formatting() {
+    local dev="$1"
+    local fstype="$2"
+    case "$fstype" in
+    xfs)
+        # mkfs.exfat "$dev" >>"$LOG_FILE" 2>&1
+        # sleep 0.5
+        if ! mkfs.xfs -f "$dev" >>"$LOG_FILE" 2>&1; then
+            return 1
+        fi
+        ;;
+    exfat)
+        if ! mkfs.exfat "$dev" >>"$LOG_FILE" 2>&1; then
+            return 1
+        fi
+        ;;
+    esac
+
+    udevadm settle --timeout=5 # 等待设备事件完成
+    sleep 0.5
+    return $?
+}
+
+# 生成挂载点
+get_datadir() {
+    local dev="$1"
+    local basename=$(basename "$dev")
+    echo "/mnt/$basename"
+}
+
+dev_mount() {
+    local dev="$1"
+    local fstype="$2"
+    local uuid=$(blkid -s UUID -o value "$dev")
+    local datadir=$(get_datadir "$dev")
+
+    if [ -z "$uuid" ]; then
+        return 1
+    fi
+
+    # 创建挂载目录
+    mkdir -p "$datadir" || {
+        return 1
+    }
+
+    # 检查UCI配置是否已存在
+    local exists=0
+    for section in $(uci show fstab | grep -E 'mount\.[0-9]+' | cut -d'.' -f2 | sort -u); do
+        if [ "$(uci -q get fstab.$section.uuid)" = "$uuid" ] &&
+            [ "$(uci -q get fstab.$section.target)" = "$datadir" ]; then
+            exists=1
+            break
+        fi
+    done
+
+    if [ "$exists" -eq 0 ]; then
+        # 使用UCI添加挂载配置
+        local anon_mount=$(uci get fstab.@global[0].anon_mount)
+        [ -z "$anon_mount" ] && uci set fstab.@global[0].anon_mount=0
+        uci add fstab mount
+        uci set fstab.@mount[-1].uuid="$uuid"
+        uci set fstab.@mount[-1].target="$datadir"
+        # uci set fstab.@mount[-1].options="rw,noatime,nodiratime,lazytime,noiversion${fstype:+,}${case "$fstype" in xfs) echo 'noquota';; exfat) echo 'umask=0000';; esac}"
+        uci set fstab.@mount[-1].enabled=1
+        uci commit fstab
+    fi
+
+    # 临时关闭自动挂载功能
+    local anon_mount_orig=$(uci -q get fstab.@global[0].anon_mount)
+    local anon_swap_orig=$(uci -q get fstab.@global[0].anon_swap)
+    uci -q get fstab.@global[0] || uci add fstab global
+    uci set fstab.@global[0].anon_mount=0
+    uci set fstab.@global[0].anon_swap=0
+    uci commit fstab
+
+    # 使用block命令挂载
+    # 执行挂载
+    if block mount; then
+        chmod 777 "$datadir"
+        echo "$datadir"
+    else
+        return 1
+    fi
+
+    uci set fstab.@global[0].anon_mount="$anon_mount_orig"
+    uci set fstab.@global[0].anon_swap="$anon_swap_orig"
+    uci commit fstab
+}
+
+partition_operations() {
+    local disk="$1"
+    local fstype="$2"
+    local partition_dev
+
+    # 卸载所有关联分区
+    for part in $(lsblk -rno NAME,MOUNTPOINT "$disk" | awk "\$1 ~ /^${disk##*/}[0-9p]+\$/ && \$2 {print \$1}"); do
+        umount "/dev/$part" || return 1
+    done
+
+    # 清除分区表
+    if ! parted -s "$disk" mklabel gpt >>"$LOG_FILE" 2>&1; then
+        return 1
+    fi
+
+    # 创建新分区
+    if ! parted -s -a optimal "$disk" mkpart primary 0% 100% >>"$LOG_FILE" 2>&1; then
+        return 1
+    fi
+    partprobe "$disk" # 立即刷新分区表
+
+    # 等待分区设备出现
+    local retries=10
+    while [ $retries -gt 0 ]; do
+        partition_dev=$(lsblk -rno NAME "$disk" | grep -E '[0-9p]$' | head -1)
+        [ -n "$partition_dev" ] && break
+        sleep 1
+        retries=$((retries - 1))
+    done
+    partition_dev="/dev/$partition_dev"
+
+    [ -b "$partition_dev" ] || {
+        return 1
+    }
+
+    echo "$partition_dev"
+}
+
+disk_single_legacy() {
+    local disk="$1"
+    local fstype="$2"
+    local target_dev="$disk"
+
+    # 仅当类型为disk时创建分区
+    if [ "$TYPE" == "disk" ]; then
+        if ! target_dev=$(partition_operations "$disk" "$fstype"); then
+            return 1
+        fi
+    fi
+
+    # 执行格式化
+    dev_formatting "$target_dev" "$fstype" || return 1
+
+    # 挂载设备
+    dev_mount "$target_dev" "$fstype" || return 1
+
+    return 0
+}
+
+case "$ACTION" in
+format_mount)
+    if validate_input && disk_single_legacy "$DEVICE" "$FSTYPE"; then
+        exit 0
+    else
+        exit 1
+    fi
+    ;;
+format)
+    if validate_input && dev_formatting "$DEVICE" "$FSTYPE"; then
+        exit 0
+    else
+        exit 1
+    fi
+    ;;
+mount)
+    if dev_mount "$DEVICE" "$FSTYPE"; then
+        exit 0
+    else
+        exit 1
+    fi
+    ;;
+*)
+    exit 1
+    ;;
+esac

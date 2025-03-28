@@ -21,8 +21,8 @@ function get_netdevs()
                 macaddr=`cat /sys/class/net/$netdev/address`
                 #format $netdev (ip:cdir4 mac:address)
                 netdev_info="IP: $cdir4;"
-                [ -n "$macaddr" ] && netdev_info="$netdev_info  MAC:$macaddr"
-                [ -n "$DEVTYPE" ] && netdev_info="$netdev_info  TYPE:$DEVTYPE"
+                [ -n "$macaddr" ] && netdev_info="$netdev_info  MAC: $macaddr"
+                [ -n "$DEVTYPE" ] && netdev_info="$netdev_info  TYPE: $DEVTYPE"
                 json_add_string $netdev "$netdev_info"
 
             fi

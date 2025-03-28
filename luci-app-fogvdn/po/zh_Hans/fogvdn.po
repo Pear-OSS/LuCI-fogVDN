@@ -38,7 +38,7 @@ msgid "Limited Area"
 msgstr "地区限制"
 
 msgid "netdev"
-msgstr "网络设备"
+msgstr "网口"
 
 msgid "Storage"
 msgstr "存储"
@@ -75,3 +75,48 @@ msgstr "OpenFogOS 官网"
 
 msgid "Warnning: System directory is not allowed!"
 msgstr "警告: 请勿使用系统目录! "
+
+msgid "os_drive_serial"
+msgstr "系统盘序列号"
+
+msgid "node_id"
+msgstr "节点 ID"
+
+msgid "Unset: If you are unsure about the operator's restrictions on inter-provincial traffic, it is recommended to choose this option."
+msgstr "不设置：若不确定运营商对流量出省的限制情况，建议选择该项；"
+
+msgid "Domestic: Traffic will be scheduled nationwide, resulting in a higher proportion of inter-provincial traffic, which may lead to restrictions by the operator."
+msgstr "全国调度：流量将会向全国调度，出省比例较高，可能会导致运营商的限制；"
+
+msgid "Provincial: Traffic will only be scheduled within the province where it is located, which is a safer scheduling mode, but the volume of traffic may decrease."
+msgstr "本省调度：流量只会向所在省份内调度，是比较安全的调度模式，但跑量可能会降低；"
+
+msgid "Regional: Traffic will only be scheduled within the region where it is located, resulting in a lower proportion of inter-provincial traffic. This mode provides a balanced approach between safety and traffic volume."
+msgstr "大区调度：流量只会向所在大区内调度，出省比例较低，是安全性和跑量之间较为均衡的模式。"
+
+msgid "Apply Optimal Storage Settings"
+msgstr "应用最佳存储设置"
+
+msgid "In order to avoid the barrel effect, Click Me to estimat the optimal setup."
+msgstr "为避免木桶效应，点击估算最佳设置"
+
+msgid "<input type=\"button\" class=\"cbi-button cbi-button-apply\" value=\"Mount Page\" />"
+msgstr "<input type=\"button\" class=\"cbi-button cbi-button-apply\" value=\"前往挂载\" />"
+
+msgid "Unmounted Storage:"
+msgstr "未挂载存储空间："
+
+msgid "Storage Manager"
+msgstr "存储管理"
+
+msgid "Manage storage devices on your OpenWrt system."
+msgstr "管理您的 OpenWrt 系统中的存储设备。"
+
+msgid "Storage Settings"
+msgstr "存储空间设置"
+
+msgid "No mountable storage space available at the moment."
+msgstr "暂无可挂载存储空间。"
+
+msgid "Format & Mount"
+msgstr "格式化并挂载"
