@@ -117,8 +117,13 @@ start_service()
 {
     config_load fogvdn
     # config_get enable main enable
-    local enable="$(cat /tmp/fogvdn_enable_state 2>/dev/null || echo 0)"
-    [ "$enable" == "1" ] && config_foreach run_instance instance || stop
+    local enable_file="$(cat /tmp/fogvdn_enable_state 2>/dev/null || echo 0)"
+    local enable_uci="$(uci get fogvdn.@main[0].enable 2>/dev/null || echo 0)"
+    if [ "$enable_file" == "1" ] || [ "$enable_uci" == "1" ]; then
+        config_foreach run_instance instance
+    else
+        stop
+    fi
 }
 
 stop_service()

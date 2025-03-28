@@ -28,14 +28,12 @@ define Package/$(PKG_NAME)/postinst
 }
 echo 1 > /tmp/fogvdn_enable_state
 service fogvdn start 2>/dev/null
-#endef
 endef
 
 define Package/$(PKG_NAME)/prerm
 #!/bin/sh
 /etc/init.d/fogvdn stop
 /etc/init.d/fogvdn disable
-#endef
 endef
 
 

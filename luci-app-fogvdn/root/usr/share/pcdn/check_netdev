@@ -15,7 +15,7 @@ function get_netdevs()
             
             [ -z "$cdir4" ] && filter=1
             [ -z "$(ip route show default table all | grep $netdev)" ] && [ "$DEVTYPE" == "bridge" ] && filter=1
-            [ "$DEVTYPE" == "wlan" ] && filter=1
+            [ -z "$(ip route show default table all | grep $netdev)" ] && [ "$DEVTYPE" == "wlan" ] && filter=1
             [ "$netdev" == "lo" ] && filter=1
             if [ "$filter" -eq 0 ];then
                 macaddr=`cat /sys/class/net/$netdev/address`
