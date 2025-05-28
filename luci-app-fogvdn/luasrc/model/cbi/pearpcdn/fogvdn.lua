@@ -3,6 +3,7 @@ local fs = require "nixio.fs"
 local json = require "luci.jsonc"
 m = Map("fogvdn", translate("OpenFog Node"))
 s = m:section(NamedSection, "main", "main", translate("Main"))
+s.description = translate("Note: The OpenFog service must not be operated concurrently with peer services in the same category.")
 
 
 act_status = s:option(DummyValue, "act_status", translate("Status"))
@@ -17,7 +18,7 @@ if fs.access(node_info_file) then
     node_info = json.parse(node_info)
     for k,v in pairs(node_info) do
         if k == "node_id" then
-            option = s:option(DummyValue, "_"..k, translate(k))
+            option = s:option(DummyValue, "_"..k, translate("Node ID"))
             option.value = v
         end
     end
@@ -29,7 +30,7 @@ if fs.access(storage_info_file) then
     storage_info = json.parse(storage_info)
     for k,v in pairs(storage_info) do
         if k == "os_drive_serial" then
-            option = s:option(DummyValue, "_"..k, translate(k))
+            option = s:option(DummyValue, "_"..k, translate("OS Drive Serial"))
             option.value = v
         end
     end
@@ -40,11 +41,11 @@ openfog_link.description = translate("OpenFogOS Official Website")
 
 s = m:section(TypedSection, "instance", translate("Settings"))
 s.anonymous = true
-s.description = translate("Fogvdn Settings")
+s.description = translate("OpenFog Settings")
 
 
 
-username = s:option(Value, "username", translate("username"))
+username = s:option(Value, "username", translate("Username"))
 username.description = translate("<input type=\"button\" class=\"cbi-button cbi-button-apply\" value=\"Register\" onclick=\"window.open('https://account.openfogos.com/signup?source%3Dopenfogos.com%26')\" />")
 
 region = s:option(Value, "region", translate("Region"))
@@ -58,20 +59,20 @@ isp:value("电信",  translate("China Telecom"))
 isp:value("移动",  translate("China Mobile"))
 isp:value("联通",  translate("China Unicom"))
 
-per_line_up_bw = s:option(Value, "per_line_up_bw", translate("Per Line Up BW"))
+per_line_up_bw = s:option(Value, "per_line_up_bw", translate("Upload Speed(Mbps)"))
 per_line_up_bw.template = "cbi/digitonlyvalue"
 per_line_up_bw.datatype = "uinteger"
 
-per_line_down_bw = s:option(Value, "per_line_down_bw", translate("Per Line Down BW"))
+per_line_down_bw = s:option(Value, "per_line_down_bw", translate("Download Speed(Mbps)"))
 per_line_down_bw.template = "cbi/digitonlyvalue"
 per_line_down_bw.datatype = "uinteger"
 
-limited_memory = s:option(Value, "limited_memory", translate("Limited Memory"))
+limited_memory = s:option(Value, "limited_memory", translate("Limited Memory(%)"))
 limited_memory.optional = true
 limited_memory.template = "cbi/digitonlyvalue"
 limited_memory.datatype = "range(0, 100)"
 -- 0-100%
-limited_storage = s:option(Value, "limited_storage", translate("Limited Storage"))
+limited_storage = s:option(Value, "limited_storage", translate("Limited Storage(%)"))
 limited_storage.optional = true
 limited_storage.template = "cbi/digitonlyvalue"
 limited_storage.datatype = "range(0, 100)"
@@ -85,7 +86,8 @@ limited_area:value("1", translate("Provincial: Traffic will only be scheduled wi
 limited_area:value("2", translate("Regional: Traffic will only be scheduled within the region where it is located, resulting in a lower proportion of inter-provincial traffic. This mode provides a balanced approach between safety and traffic volume."))
 -- 限制地区 -1 不设置（采用openfogos默认） 0 全国调度，1 省份调度，2 大区调度
 
-nics = s:option(DynamicList,"nics", translate("netdev"))
+nics = s:option(DynamicList,"nics", translate("Interfaces"))
+nics.description = translate("Please utilize the network port with active internet connectivity.")
 -- uci:foreach("multiwan","multiwan",function (instance)
 --     nics:value(instance["tag"])
 -- end
@@ -99,7 +101,7 @@ for k,v in pairs(devs) do
 end
 
 storage = s:option(DynamicList, "storage", translate("Storage"))
-storage.description = translate("Warnning: System directory is not allowed!")
+storage.description = translate("Please prioritize solid-state drives with integrated DRAM cache and write-through capability, preferably meeting enterprise-grade specifications.")
 --filter start with /etc /usr /root /var /tmp /dev /proc /sys /overlay /rom and root
 mount_point = {}
 cmd="/usr/share/pcdn/check_mount_point mount_point"

@@ -1,7 +1,7 @@
 msgid "FOGVDN"
 msgstr "OpenFog"
 
-msgid "FOGVDN Node"
+msgid "OpenFog Node"
 msgstr "OpenFog 节点"
 
 msgid "OpenFogOS"
@@ -10,11 +10,20 @@ msgstr "OpenFogOS"
 msgid "Main"
 msgstr "主设置"
 
-msgid "Fogvdn Settings"
+msgid "OpenFog Settings"
 msgstr "OpenFog 设置"
 
-msgid "username"
+msgid "Note: The OpenFog service must not be operated concurrently with peer services in the same category."
+msgstr "注意：请不要同时运行OpenFog和其他同类业务。"
+
+msgid "Node ID"
+msgstr "节点ID"
+
+msgid "Username"
 msgstr "用户名"
+
+msgid "System Drive Serial"
+msgstr "系统盘SN号"
 
 msgid "Region"
 msgstr "地区"
@@ -22,22 +31,22 @@ msgstr "地区"
 msgid "ISP"
 msgstr "运营商"
 
-msgid "Per Line Up BW"
+msgid "Upload Speed(Mbps)"
 msgstr "每条线路上行带宽(Mbps)"
 
-msgid "Per Line Down BW"
+msgid "Download Speed(Mbps)"
 msgstr "每条线路下行带宽(Mbps)"
 
-msgid "Limited Memory"
+msgid "Limited Memory(%)"
 msgstr "内存限制(%)"
 
-msgid "Limited Storage"
+msgid "Limited Storage(%)"
 msgstr "存储限制(%)"
 
 msgid "Limited Area"
 msgstr "地区限制"
 
-msgid "netdev"
+msgid "Interfaces"
 msgstr "网口"
 
 msgid "Storage"
@@ -73,14 +82,8 @@ msgstr "中国移动"
 msgid "OpenFogOS Official Website"
 msgstr "OpenFogOS 官网"
 
-msgid "Warnning: System directory is not allowed!"
-msgstr "警告: 请勿使用系统目录! "
-
-msgid "os_drive_serial"
-msgstr "系统盘序列号"
-
-msgid "node_id"
-msgstr "节点 ID"
+msgid "Please prioritize solid-state drives with integrated DRAM cache and write-through capability, preferably meeting enterprise-grade specifications."
+msgstr "请优先选择带缓存、可直写的固态硬盘，最好符合企业级规格"
 
 msgid "Unset: If you are unsure about the operator's restrictions on inter-provincial traffic, it is recommended to choose this option."
 msgstr "不设置：若不确定运营商对流量出省的限制情况，建议选择该项；"
@@ -89,10 +92,13 @@ msgid "Domestic: Traffic will be scheduled nationwide, resulting in a higher pro
 msgstr "全国调度：流量将会向全国调度，出省比例较高，可能会导致运营商的限制；"
 
 msgid "Provincial: Traffic will only be scheduled within the province where it is located, which is a safer scheduling mode, but the volume of traffic may decrease."
-msgstr "本省调度：流量只会向所在省份内调度，是比较安全的调度模式，但跑量可能会降低；"
+msgstr "本省调度：流量只会向所在省份内调度，是相对安全的调度模式，但跑量可能会降低；"
 
 msgid "Regional: Traffic will only be scheduled within the region where it is located, resulting in a lower proportion of inter-provincial traffic. This mode provides a balanced approach between safety and traffic volume."
 msgstr "大区调度：流量只会向所在大区内调度，出省比例较低，是安全性和跑量之间较为均衡的模式。"
+
+msgid "Please utilize the network port with active internet connectivity."
+msgstr "请使用可正常上网的网口"
 
 msgid "Apply Optimal Storage Settings"
 msgstr "应用最佳存储设置"
@@ -108,6 +114,9 @@ msgstr "未挂载存储空间："
 
 msgid "Storage Manager"
 msgstr "存储管理"
+
+msgid "Select Storage"
+msgstr "选择存储"
 
 msgid "Manage storage devices on your OpenWrt system."
 msgstr "管理您的 OpenWrt 系统中的存储设备。"

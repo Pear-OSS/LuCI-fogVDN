@@ -89,7 +89,7 @@ else
 
         self.map:set(section, "device", "")
     
-        luci.http.redirect(luci.dispatcher.build_url("admin/pcdn/storage_manager"))
+        luci.http.redirect(luci.dispatcher.build_url("admin/services/storage_manager"))
         return
     end
 end
