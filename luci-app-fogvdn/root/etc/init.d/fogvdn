@@ -4,7 +4,13 @@ USE_PROCD=1
 START=99
 STOP=1
 
-CONFIG_PATH=/etc/pear/pear_monitor
+if [ -f /etc/pear/pear_installation_path ]; then
+    . /etc/pear/pear_installation_path
+else
+    INSTALLATION_PATH=''
+fi
+
+CONFIG_PATH="${INSTALLATION_PATH}/etc/pear/pear_monitor"
 target_config_path=${CONFIG_PATH}/config.json
 
 

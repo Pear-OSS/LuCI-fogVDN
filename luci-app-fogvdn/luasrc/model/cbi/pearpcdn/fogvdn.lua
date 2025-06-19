@@ -12,7 +12,23 @@ act_status.template = "pcdn/act_status"
 enabled = s:option(Flag, "enable", translate("Enable"))
 enabled.default = 0
 
-node_info_file = "/etc/pear/pear_monitor/node_info.json"
+local function get_installation_path()
+    local path_file = "/etc/pear/pear_installation_path"
+    local file, err = io.open(path_file, "r")
+    if not file then 
+        return "" 
+    end
+    
+    local content = file:read("*a")
+    file:close()
+    
+    local path = content:match("INSTALLATION_PATH=([^\r\n]*)")
+    return path and path:gsub("%s+$", "") or ""
+end
+
+local installation_path = get_installation_path()
+
+node_info_file = installation_path .. "/etc/pear/pear_monitor/node_info.json"
 if fs.access(node_info_file) then
     local node_info = fs.readfile(node_info_file)
     node_info = json.parse(node_info)
@@ -24,7 +40,7 @@ if fs.access(node_info_file) then
     end
 end
 
-storage_info_file = "/etc/pear/pear_monitor/storage_info.json"
+storage_info_file = installation_path .. "/etc/pear/pear_monitor/storage_info.json"
 if fs.access(storage_info_file) then
     local storage_info = fs.readfile(storage_info_file)
     storage_info = json.parse(storage_info)
