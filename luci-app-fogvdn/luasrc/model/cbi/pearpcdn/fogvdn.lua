@@ -224,7 +224,7 @@ if json_dump ~= nil then
         btn=s:option(DummyValue, "_toStorageManager", " ")
         btn.rawhtml = true
         btn.value = translate("<input type=\"button\" class=\"cbi-button cbi-button-apply\" value=\"Mount Page\" />")
-        btn.href="/cgi-bin/luci/admin/pcdn/storage_manager"
+        btn.href="/cgi-bin/luci/admin/services/storage_manager"
         btn.description = translate("Unmounted Storage:")
 
         local first = true
