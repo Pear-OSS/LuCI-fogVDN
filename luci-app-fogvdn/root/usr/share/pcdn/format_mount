@@ -53,7 +53,7 @@ dev_formatting() {
     xfs)
         # mkfs.exfat "$dev" >>"$LOG_FILE" 2>&1
         # sleep 0.5
-        if ! mkfs.xfs -f "$dev" >>"$LOG_FILE" 2>&1 && ! mkfs.ext4 -F "$dev" >>"$LOG_FILE"; then
+        if ! mkfs.xfs -f -m crc=0 "$dev" >>"$LOG_FILE" 2>&1 && ! mkfs.ext4 -F -F "$dev" >>"$LOG_FILE"; then
             return 1
         fi
         ;;
